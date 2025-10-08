@@ -1,52 +1,83 @@
 # lol-worlds-2025-predict
 
-This project aims to predict the outcome of the League of Legends World Championship based on match data from the entire 2025 season, sourced from [gol.gg](https://gol.gg/). Team statistics, sourced from [oracleselixir.com](https://oracleselixir.com/), are updated daily and reflect performance only within the current tournament — from the team’s first match to their last match in that tournament. The prediction logic dynamically uses these team stats limited to each tournament’s timeframe.
+This project predicts the outcomes of League of Legends matches within individual leagues using match data from [gol.gg](https://gol.gg/) and team statistics from [oracleselixir.com](https://oracleselixir.com/). 
+It focuses exclusively on intra-league predictions. 
+The model dynamically adapts to the most up-to-date team statistics and performance within each tournament.
 
 ## Used tournaments
 
-- winter
+$(YEARS) = {
+        2025
+        }
 
-        lpl - LPL 2025 Split 1 | LPL 2025 Split 1 Playoffs
+- LPL
 
-        lec - LEC Winter 2025 | LEC 2025 Winter Playoffs
+        LPL $YEARS Split 1 
 
-        lck - LCK Cup 2025
+        LPL $YEARS Split 1 Playoffs
 
-        lta - LTA North 2025 Split 1 | LTA South 2025 Split 1 | LTA 2025 Split 1 Playoffs
+        LPL $YEARS Split 2 Placements
 
-        lcp - LCP 2025 Season Kickoff | LCP 2025 Season Kickoff Qualifying Series
+        LPL $YEARS Split 2
 
-- spring
+        LPL $YEARS Split 2 Playoffs
 
-        lpl - LPL 2025 Split 2 Placements | LPL 2025 Split 2 | LPL 2025 Split 2 Playoffs
-    
-        lec - LEC 2025 Spring Season | LEC 2025 Spring Playoffs
+        LPL $YEARS Split 3
 
-        lck - LCK 2025 Rounds 1-2 | LCK 2025 Road to MSI
+- LEC
 
-        lta - LTA North 2025 Split 2 | LTA North 2025 Split 2 Playoffs | LTA South 2025 Split 2 | LTA South 2025 Split 2 Playoffs
+        LEC $YEARS Winter
 
-        lcp - LCP 2025 Mid Season | LCP 2025 Mid Season Qualifying Series
+        LEC $YEARS Winter Playoffs
 
-- summer
+        LEC $YEARS Spring Season
 
-        lpl - LPL 2025 Split 3
+        LEC $YEARS Spring Playoffs
 
-        lec - LEC 2025 Summer Season
+        LEC $YEARS Summer Season
 
-        lck - LCK 2025 Rounds 3-5
+- LCK
 
-        lta - LTA North 2025 Split 3 | LTA South 2025 Split 3
+        LCK $YEARS Cup
 
-        lcp - LCP 2025 Season Finals
+        LCK $YEARS Rounds 1-2
 
-- interleague
+        LCK $YEARS Road to MSI
 
-        2025 Mid-Season Invitational
+        LCK $YEARS Rounds 3-5
 
-        Esports World Cup 2025
+- LTA N
 
-        First Stand 2025
+        LTA North $YEARS Split 1
+
+        LTA North $YEARS Split 2
+
+        LTA North $YEARS Split 2 Playoffs
+
+        LTA North $YEARS Split 3
+
+- LTA S
+
+        LTA South $YEARS Split 1
+
+        LTA South $YEARS Split 2
+
+        LTA South $YEARS Split 2 Playoffs
+
+        LTA South $YEARS Split 3
+
+- LCP
+
+        LCP $YEARS Season Kickoff
+
+        LCP $YEARS Season Kickoff Qualifying Series
+
+        LCP $YEARS Mid Season
+
+        LCP $YEARS Mid Season Qualifying Series
+
+        LCP $YEARS Season Finals
+
 
 ## About data
 
@@ -126,12 +157,6 @@ This project aims to predict the outcome of the League of Legends World Champion
 
                - The raw statistics for Wins (W) and Losses (L) were removed after computing the win rate percentage (winrate%)
 
-  - After merging the data as described in the next part [Team-Match Linking Logic](#team-match-linking-logic)
-
-    - Create difference and ratio features from the team's data, then remove the individual team columns. This encourages the model to learn from the differences between teams rather than individual team stats, so it does not matter which team is labeled A or B
-   
-    - Generate mirror matches to improve generalization. For most of the data, it does not matter whether a team is listed first or second (this is what I aimed to achieve)
-
 ## Team-Match Linking Logic
 
 The team–match linking logic is separated into three distinct cases:
@@ -152,72 +177,32 @@ The team–match linking logic is separated into three distinct cases:
 
 <img src="pictures/team_match_linking.png" width="1200">
 
+## Improving Consistency and Model Generalization
+
+- Create difference and ratio features from the team's data, then remove the individual team columns.
+  This encourages the model to learn from the differences between teams rather than individual team stats, so it does not matter which team is labeled A or B.
+   
+- Generate mirror matches to improve generalization.
+  For most of the data, it does not matter whether a team is listed first or second (this is what I aimed to achieve).
+
 ## how to use it (Linux)
 
-- Clone the repository
+TO DO
 
-      git clone https://github.com/pavlila/lol-worlds-2025-predict.git
-      cd lol-worlds-2025-predict
-        
-- Create and activate a virtual environment
-  
-      python3 -m venv venv
-      source venv/bin/activate
-
-- Install dependencies
-
-      pip install -r requirements.txt
-  
-- Prepare the input data
-  
-  - Place your match data at `user/new_match.csv`
-    
-  - Make sure the file contains the following columns: tournament | teamA | teamB | date
- 
-- Process the new data
-
-      cd user
-      python3 process_new_data.py
-
-- Run the prediction script
-
-      cd user
-      python3 prediction.py
-
-  - The output below shows predictions for one match, where 1 indicates a win for Team A and 0 indicates a loss for Team A.
- 
-        Decision Tree: [0]
-        Random Forest: [1]
-        XGBoost: [1]
-        Logistic regression: [1]
-
-- Tip
-
-  - To achieve the best accuracy, update the data after each round of the tournament
-
-    - Add a row with match stats from [gol.gg](https://gol.gg/) to `data/raw/matches_tournament/split_name.csv`
-
-    - Add a row with daily team stats (from the tournament start) from [oracleselixir.com](https://oracleselixir.com/) to `data/raw/teams_tournament/split_name.csv`
-   
-    - Make sure that all columns are correct
-   
-    - After completing the previous steps, process the data
-
-          cd user
-          python3 process_data.py
 
 ## Validation accuracy
 
-The data used is from all tournaments listed in [Used tournaments](#used-tournaments), except for Worlds 2025 Play-In and Worlds 2025 Main Event. The percentages are based on match win rates, and the data is split into 60% training and 40% validation sets with a random seed of 42.
+The percentages represent the model’s predicted probabilities of each outcome, and the data is split into 50% training and 30% validation sets with a random seed of 42.
 
-- Decision Tree: 68.42%
-- Random Forest: 75.00%
-- XGBoost: 73.68%
-- Logistic Regression: 69.74%
+- Decision Tree: x/y z%
+- Random Forest: x/y z%
+- XGBoost: x/y z%
+- Logistic Regression: x/y z%
 
 ## Testing accuracy
 
-The data used is from Worlds 2025 Play-In and Worlds 2025 Main Event, the percentages are based on match win rates
+The validation and test sets are combined into a single.
+Test set representing 20% of the total dataset.
 
 - Decision Tree: x/y z%
 - Random Forest: x/y z%
