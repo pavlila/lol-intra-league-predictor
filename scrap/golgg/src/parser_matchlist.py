@@ -13,6 +13,8 @@ def parse_tournament_matchlist(html):
             table = t
             break
 
+    if table is None:
+        table = soup.find('table')
     if not table:
         return result
     
@@ -21,24 +23,13 @@ def parse_tournament_matchlist(html):
         if len(tds) < 5:
             continue
 
-        game_cell = tds[0]
-        teams = [a.get_text(strip=True) for a in game_cell.find_all('a')]
-        team_left = teams[0] if len(teams) > 0 else ""
-        team_right = teams[1] if len(teams) > 1 else ""
-
-        winner = tds[1].get_text(strip=True)
-        loser = team_right if winner == team_left else team_left
+        teamA = tds[1].get_text(strip=True)
+        teamB = tds[3].get_text(strip=True)
 
         score_text = tds[2].get_text(strip=True)
         scoreA, scoreB = parse_score(score_text)
 
-        if scoreA is not None and scoreB is not None:
-            if scoreA > scoreB:
-                teamA, teamB = winner, loser
-            else:
-                teamA, teamB = loser, winner
-
-        date_text = tds[5].get_text(strip=True) if len(tds) > 5 else ""
+        date_text = tds[-1].get_text(strip=True) if len(tds) > 5 else ""
         date= try_parse_date(date_text)
 
         result.append({
@@ -49,7 +40,8 @@ def parse_tournament_matchlist(html):
             "date": date
         })
 
-        return result
+    print(f"[DEBUG] Parsed {len(result)} matches")
+    return result
 
 def parse_score(s):
     m = re.search(r"(\d+)\s*[-:]\s*(\d+)", s or "")

@@ -1,6 +1,6 @@
 from urllib.parse import quote
-from .fetcher import Fetcher
-from .parser_matchlist import parse_tournament_matchlist
+from fetcher import Fetcher
+from parser_matchlist import parse_tournament_matchlist
 from config import BASE_URL, RAW_DIR, INTER_DIR
 import csv, os
 
@@ -12,6 +12,7 @@ def scrape_tournament_matchlist(tournament_name: str, out_csv: str = None):
     url = slug_to_url(tournament_name)
     fetcher = Fetcher()
     resp = fetcher.get(url)
+
     html = resp.text
 
     raw_path = RAW_DIR / f"{tournament_name.replace('/','_')}.html"
@@ -22,7 +23,7 @@ def scrape_tournament_matchlist(tournament_name: str, out_csv: str = None):
     matches = parse_tournament_matchlist(html)
 
     out_csv = out_csv or (INTER_DIR / f"{tournament_name.replace('/','_')}_matches.csv")
-    out_csv.parent.mkdir(parent=True, exist_ok=True)
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
     with open(out_csv, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=matches[0].keys())
         writer.writeheader()
