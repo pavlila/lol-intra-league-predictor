@@ -58,6 +58,8 @@ def getStats(team, league, date, teamsStats):
 
 def mergeMatchesAndTeamsData(matches, teams):
     merged_rows = []
+    missing_A = 0
+    missing_B = 0
     for _, row in matches.iterrows():
         teamA = row['teamA']
         teamB = row['teamB']
@@ -68,6 +70,10 @@ def mergeMatchesAndTeamsData(matches, teams):
         statsA = getStats(teamA, league, date, teams)
         statsB = getStats(teamB, league, date, teams)
 
+        if statsA.empty:
+            missing_A += 1
+        if statsB.empty:
+            missing_B += 1
         if statsA.empty or statsB.empty:
             continue
 
@@ -86,6 +92,8 @@ def mergeMatchesAndTeamsData(matches, teams):
         combined_data['teamA_win'] = win
 
         merged_rows.append(combined_data)
+
+    print(f"Missing stats for teamA: {missing_A}, teamB: {missing_B}")
 
     return pd.DataFrame(merged_rows).reset_index(drop=True)
 
