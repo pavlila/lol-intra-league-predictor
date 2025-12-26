@@ -1,0 +1,56 @@
+teamA,teamB,scoreA,scoreB,date
+Ultra Prime,Team WE,1,2,2025-03-31
+Team WE,LGD Gaming,2,0,2025-03-31
+Funplus Phoenix,Ultra Prime,2,1,2025-03-30
+Team WE,Ultra Prime,0,1,2025-03-30
+LGD Gaming,Funplus Phoenix,0,1,2025-03-30
+Funplus Phoenix,Ninjas in Pyjamas,1,0,2025-03-29
+Top Esports,OMG,1,0,2025-03-29
+Funplus Phoenix,OMG,0,1,2025-03-29
+Ninjas in Pyjamas,Top Esports,0,1,2025-03-29
+Top Esports,Funplus Phoenix,1,0,2025-03-29
+OMG,Ninjas in Pyjamas,0,1,2025-03-29
+Royal Never Give Up,Ultra Prime,0,1,2025-03-28
+Ultra Prime,TT,0,1,2025-03-28
+Anyone s Legend,Royal Never Give Up,1,0,2025-03-28
+Ultra Prime,Royal Never Give Up,0,1,2025-03-28
+TT,Anyone s Legend,0,1,2025-03-28
+Anyone s Legend,Ultra Prime,1,0,2025-03-28
+Royal Never Give Up,TT,0,1,2025-03-28
+LNG Esports,Invictus Gaming,0,1,2025-03-27
+JD Gaming,LGD Gaming,1,0,2025-03-27
+LNG Esports,LGD Gaming,0,1,2025-03-27
+Invictus Gaming,JD Gaming,1,0,2025-03-27
+JD Gaming,LNG Esports,1,0,2025-03-27
+LGD Gaming,Invictus Gaming,0,1,2025-03-27
+Edward Gaming,Team WE,0,1,2025-03-26
+Team WE,Weibo Gaming,0,1,2025-03-26
+Bilibili Gaming,Edward Gaming,1,0,2025-03-26
+Team WE,Edward Gaming,1,0,2025-03-26
+Weibo Gaming,Bilibili Gaming,1,0,2025-03-26
+Bilibili Gaming,Team WE,1,0,2025-03-26
+Edward Gaming,Weibo Gaming,0,1,2025-03-26
+OMG,Top Esports,0,1,2025-03-25
+Ninjas in Pyjamas,Funplus Phoenix,1,0,2025-03-25
+Top Esports,Ninjas in Pyjamas,1,0,2025-03-25
+OMG,Funplus Phoenix,0,1,2025-03-25
+Funplus Phoenix,Top Esports,0,1,2025-03-25
+Ninjas in Pyjamas,OMG,1,0,2025-03-25
+Royal Never Give Up,Anyone s Legend,1,0,2025-03-24
+TT,Ultra Prime,0,1,2025-03-24
+Anyone s Legend,TT,1,0,2025-03-24
+Royal Never Give Up,Ultra Prime,0,1,2025-03-24
+Ultra Prime,Anyone s Legend,0,1,2025-03-24
+TT,Royal Never Give Up,1,0,2025-03-24
+LGD Gaming,JD Gaming,0,1,2025-03-23
+Invictus Gaming,LNG Esports,1,0,2025-03-23
+JD Gaming,Invictus Gaming,0,1,2025-03-23
+LGD Gaming,LNG Esports,1,0,2025-03-23
+LNG Esports,JD Gaming,0,1,2025-03-23
+Invictus Gaming,LGD Gaming,1,0,2025-03-23
+Edward Gaming,Bilibili Gaming,0,1,2025-03-22
+Weibo Gaming,Team WE,1,0,2025-03-22
+Bilibili Gaming,Weibo Gaming,1,0,2025-03-22
+Edward Gaming,Team WE,1,0,2025-03-22
+Team WE,Bilibili Gaming,0,1,2025-03-22
+Weibo Gaming,Edward Gaming,1,0,2025-03-22

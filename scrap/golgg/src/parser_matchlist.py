@@ -40,7 +40,6 @@ def parse_tournament_matchlist(html):
             "date": date
         })
 
-    print(f"[DEBUG] Parsed {len(result)} matches")
     return result
 
 def parse_score(s):

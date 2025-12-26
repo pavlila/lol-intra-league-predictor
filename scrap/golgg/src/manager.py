@@ -15,11 +15,6 @@ def scrape_tournament_matchlist(tournament_name: str, out_csv: str = None):
 
     html = resp.text
 
-    raw_path = RAW_DIR / f"{tournament_name.replace('/','_')}.html"
-    raw_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(raw_path, 'w', encoding='utf-8') as f:
-        f.write(html)
-
     matches = parse_tournament_matchlist(html)
 
     out_csv = out_csv or (INTER_DIR / f"{tournament_name.replace('/','_')}_matches.csv")

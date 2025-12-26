@@ -67,9 +67,14 @@ def matchesClean(tournaments: pd.DataFrame) -> pd.DataFrame:
 
     df = pd.DataFrame()
     for t in tournaments:
-        path = f"../../scrap/golgg/data/intermediate/{t}_matches.csv"
+        path = f"../../scrap/golgg/data/{t}_matches.csv"
         data = pd.read_csv(path, sep=',')
-        data['tournament'] = t
+        
+        league_keywords = ['LTA North', 'LTA South', 'LTA N', 'LTA S', 'LPL', 'LEC', 'LCK', 'LCS', 'CBLOL', 'LLA', 'PCS', 'VCS', 'LJL', 'LCP']
+
+        found_league = next((l for l in league_keywords if l in t), "Unknown")
+        data['league'] = found_league
+
         df = pd.concat([df, data], ignore_index=True)
 
     df['scoreA'] = pd.to_numeric(df['scoreA'], errors='coerce')
@@ -79,45 +84,110 @@ def matchesClean(tournaments: pd.DataFrame) -> pd.DataFrame:
     df['teamA_win'] = (df['scoreA'] > df['scoreB']).astype(int)
     df = df.drop(columns=['scoreA','scoreB'])
 
-    # df = renameTeamsInMatches(df)
+    df = renameTeamsInMatches(df)
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     return df
 
-def teamsClean(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean and preprocess raw team statistics.
+def teamsClean(data: pd.DataFrame, league: str) -> pd.DataFrame:
+    l = data[data['league'].str.upper() == f'{league.upper()}'].copy()
 
-    This function converts numeric columns, calculates winrate, 
-    normalizes percentage columns, and ensures proper date formatting.
+    l['date'] = pd.to_datetime(l['date'])
+    l['AGT'] = l['gamelength'] / 60
 
-    Specifically:
-        - Converts 'W' (wins) and 'GP' (games played) to numeric
-        - Creates 'winrate%' column as W / GP
-        - Drops unused columns: ['W', 'L', 'K', 'D']
-        - Converts percentage columns (e.g. 'FB%', 'FT%', 'GRB%') 
-          from string with '%' to float in range [0, 1]
-        - Converts 'date' to datetime
+    players = l[l['participantid'] < 100].copy()
+    
+    game_totals = players.groupby('gameid').agg(
+        total_minions=('minionkills', 'sum'),
+        total_jungle=('monsterkills', 'sum')
+    ).reset_index()
 
-    Args:
-        df (pd.DataFrame): Raw DataFrame of team statistics.
+    l = l.merge(game_totals, on='gameid', how='left')
 
-    Returns:
-        pd.DataFrame: Cleaned DataFrame with numeric, normalized 
-            percentage values and standardized columns.
-    """
-    df['W'] = pd.to_numeric(df['W'], errors='coerce').fillna(0)
-    df['GP'] = pd.to_numeric(df['GP'], errors='coerce').fillna(0)
-    df['winrate%'] = df['W'] / df['GP']
+    l['LNE%'] = l['minionkills'] / l['total_minions']
+    l['JNG%'] = l['monsterkills'] / l['total_jungle']
 
-    df = df.drop(columns=['W','L','K','D'])
-    percent_cols = ['FB%','FT%','F3T%','HLD%','GRB%','FD%','DRG%','ELD%','FBN%','GSPD','BN%','LNE%','JNG%']
+    l = l[l['participantid'].isin([100,200])].copy()
+    l = l.sort_values('date')
 
-    for col in percent_cols:
-        if col in df.columns:
-            df[col] = (df[col].astype(str).str.replace('%', '', regex=False).replace('nan', np.nan).astype(float) / 100)
+    l['K+D'] = l['teamkills'] + l['teamdeaths']
+    l['CKPM'] = l['K+D'] / l['AGT']
+    l['GD15'] = l['goldat15'] - l['opp_goldat15']
 
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
-    return df
+    l['CWPM'] = pd.to_numeric(l['controlwardsbought'], errors='coerce') / l['AGT']
+    l['WCPM'] = pd.to_numeric(l['wardskilled'], errors='coerce') / l['AGT']
+
+    def aggregate_until_date(df: pd.DataFrame) -> pd.DataFrame:
+        out = {}
+        out['GP'] = len(df)
+        out['W'] = df['result'].sum()
+        out['L'] = out['GP'] - out['W']
+        out['AGT'] = df['AGT'].mean()
+        out['K'] = df['teamkills'].sum()
+        out['D'] = df['teamdeaths'].sum()
+        out['KD'] = out['K'] / out['D'] if out['D'] > 0 else np.nan
+        out['CKPM'] = df['CKPM'].mean()
+        out['GSPD'] = df['gspd'].mean()
+        out['GD15'] = df['GD15'].mean()
+        out['FB%'] = df['firstblood'].mean()
+        out['FT%'] = df['firsttower'].mean()
+        out['F3T%'] = df['firsttothreetowers'].mean()
+        out['PPG'] = df['turretplates'].mean()
+
+        def get_rate(my_col, opp_col):
+            total = df[my_col].sum() + df[opp_col].sum()
+            return df[my_col].sum() / total if total > 0 else np.nan
+
+        out['HLD%'] = get_rate('heralds', 'opp_heralds')
+        out['GRB%'] = get_rate('void_grubs', 'opp_void_grubs')
+        out['BN%'] = get_rate('barons', 'opp_barons')
+        out['ELD%'] = get_rate('elders', 'opp_elders')
+        out['DRG%'] = get_rate('dragons', 'opp_dragons')
+
+        out['FD%'] = df['firstdragon'].mean()
+        out['FBN%'] = df['firstbaron'].mean()
+        out['LNE%'] = df['LNE%'].mean()
+        out['JNG%'] = df['JNG%'].mean()
+        out['WPM'] = df['wpm'].mean()
+        out['CWPM'] = df['CWPM'].mean()
+        out['WCPM'] = df['WCPM'].mean()
+
+        out['winrate%'] = out['W'] / out['GP'] if out['GP'] > 0 else np.nan
+        return pd.Series(out)
+    
+    daily_stats = []
+    for (league, team, split, playoffs), group in l.groupby(['league','teamname','split','playoffs']):
+        group = group.sort_values('date')
+        for day in group['date'].dt.date.unique():
+            subset = group[group['date'].dt.date <= day]
+            stats = aggregate_until_date(subset)
+            stats['league'] = league
+            stats['split'] = split
+            stats['playoffs'] = playoffs
+            stats['date'] = pd.Timestamp(day)
+            stats['Team'] = team
+            daily_stats.append(stats)
+
+    l_final = pd.DataFrame(daily_stats)
+
+    expected_cols = [
+        "league", "date", "Team",
+        "GP", "W", "L", "AGT", "K", "D", "KD", "CKPM",
+        "GSPD", "GD15", "FB%", "FT%", "F3T%", "PPG",
+        "HLD%", "GRB%", "FD%", "DRG%", "ELD%", "FBN%", "BN%",
+        "LNE%", "JNG%", "WPM", "CWPM", "WCPM", "winrate%"
+    ]
+
+    for c in expected_cols:
+        if c not in l_final.columns:
+            l_final[c] = np.nan
+
+    # teď vyber všechny očekávané sloupce
+    l_final = l_final[expected_cols].sort_values(
+        by=["league", "Team", "date"]
+    ).reset_index(drop=True)
+        
+    return l_final
+
 
 def main() -> None:
     """
@@ -263,6 +333,47 @@ def main() -> None:
     matches_2023.to_csv(f"../../data/cleaned/matches/2023.csv", sep=',', index=False)
     matches_2024.to_csv(f"../../data/cleaned/matches/2024.csv", sep=',', index=False)
     matches_2025.to_csv(f"../../data/cleaned/matches/2025.csv", sep=',', index=False)
+
+    teams_2023 = pd.read_csv("../../scrap/oracleselixir/2023_LoL_esports_match_data_from_OraclesElixir.csv", sep=',', low_memory=False)
+    teams_2024 = pd.read_csv("../../scrap/oracleselixir/2024_LoL_esports_match_data_from_OraclesElixir.csv", sep=',', low_memory=False)
+    teams_2025 = pd.read_csv("../../scrap/oracleselixir/2025_LoL_esports_match_data_from_OraclesElixir.csv", sep=',', low_memory=False)
+
+    lec_2023 = teamsClean(teams_2023, 'LEC')
+    lec_2024 = teamsClean(teams_2024, 'LEC')
+    lec_2025 = teamsClean(teams_2025, 'LEC')
+
+    lpl_2023 = teamsClean(teams_2023, 'LPL')
+    lpl_2024 = teamsClean(teams_2024, 'LPL')
+    lpl_2025 = teamsClean(teams_2025, 'LPL')
+
+    lck_2023 = teamsClean(teams_2023, 'LCK')
+    lck_2024 = teamsClean(teams_2024, 'LCK')
+    lck_2025 = teamsClean(teams_2025, 'LCK')
+
+    lta_south_2025 = teamsClean(teams_2025, 'LTA S')
+    lta_north_2025 = teamsClean(teams_2025, 'LTA N')
+    lcs_2024 = teamsClean(teams_2024, 'LCS')
+    lcs_2023 = teamsClean(teams_2023, 'LCS')
+    cblol_2024 = teamsClean(teams_2024, 'CBLOL')
+    cblol_2023 = teamsClean(teams_2023, 'CBLOL')
+    lla_2024 = teamsClean(teams_2024, 'LLA')
+    lla_2023 = teamsClean(teams_2023, 'LLA')
+
+    lcp_2025 = teamsClean(teams_2025, 'LCP')
+    pcs_2024 = teamsClean(teams_2024, 'PCS')
+    pcs_2023 = teamsClean(teams_2023, 'PCS')
+    vcs_2024 = teamsClean(teams_2024, 'VCS')
+    vcs_2023 = teamsClean(teams_2023, 'VCS')
+    ljl_2024 = teamsClean(teams_2024, 'LJL')
+    ljl_2023 = teamsClean(teams_2023, 'LJL')
+
+    teams_2023 = pd.concat([lec_2023, lpl_2023, lck_2023, lcs_2023, cblol_2023, lla_2023, pcs_2023, vcs_2023, ljl_2023], ignore_index=True)
+    teams_2024 = pd.concat([lec_2024, lpl_2024, lck_2024, lcs_2024, cblol_2024, lla_2024, pcs_2024, vcs_2024, ljl_2024], ignore_index=True)
+    teams_2025 = pd.concat([lec_2025, lpl_2025, lck_2025, lta_south_2025, lta_north_2025, lcp_2025], ignore_index=True)
+
+    teams_2023.to_csv(f"../../data/cleaned/teams/2023.csv", sep=',', index=False)
+    teams_2024.to_csv(f"../../data/cleaned/teams/2024.csv", sep=',', index=False)
+    teams_2025.to_csv(f"../../data/cleaned/teams/2025.csv", sep=',', index=False)
 
 if __name__ == "__main__":
     main()
