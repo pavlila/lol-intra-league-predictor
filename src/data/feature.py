@@ -1,5 +1,4 @@
 import pandas as pd
-from joblib import dump
 
 def makeMirror(df):
     """Rozmnoží dataset: každý zápas A vs B dostane i zrcadlenou verzi B vs A."""
@@ -29,44 +28,45 @@ def makeMirror(df):
     
 def makeDiff(df):
     a_cols = [c for c in df.columns if c.endswith('_A')]
-    b_cols = [c for c in df.columns if c.endswith('_B')]
+    diff_data = {}
+    ratio_data = {}
 
     for a_col in a_cols:
         base = a_col[:-2]
-        b_col = f'{base}_B'
+        b_col = f"{base}_B"
+        if b_col in df.columns:
+            diff_data[f'diff_{base}'] = df[a_col] - df[b_col]
+            ratio_data[f'ratio_{base}'] = df[a_col] / (df[b_col] + 1e-6)
 
-        if b_col in b_cols:
-            df[f'diff_{base}'] = df[a_col] - df[b_col]
-            df[f'ratio_{base}'] = df[a_col] / (df[b_col] + 1e-6)
-
-    df = df.drop(columns=a_cols + b_cols)
+    df = pd.concat([df, pd.DataFrame(diff_data), pd.DataFrame(ratio_data)], axis=1)
+    drop_cols = [c for c in df.columns if c.endswith('_A') or c.endswith('_B')]
+    df = df.drop(columns=drop_cols)
     return df
 
-def makeFeature(df):
+
+def makeFeature(df, month_validation=1):
     df['date'] = pd.to_datetime(df['date'])
-    df['year'] = df['date'].dt.year
-    df['month'] = df['date'].dt.month
-    df['day'] = df['date'].dt.day
-    df = df.drop(columns=['date'])
 
-    df = makeMirror(df)
+    max_date = df['date'].max()
+    validation_start = max_date - pd.DateOffset(months=month_validation)
 
-    cat_cols = df.select_dtypes(['object']).columns
-    df[cat_cols] = df[cat_cols].astype('category')
+    train_df = df[df['date'] < validation_start].copy()
+    val_df = df[df['date'] >= validation_start].copy()
 
-    decode_maps = {col: dict(enumerate(df[col].cat.categories)) for col in cat_cols}
-    dump(decode_maps, "../../data/featured/decode_maps.joblib")
+    train_df = makeMirror(train_df)
 
-    df[cat_cols] = df[cat_cols].apply(lambda x: x.cat.codes)
+    meta_cols = ['teamA', 'teamB', 'league']
     
-    df = df.fillna(-1)
+    train_df = makeDiff(train_df.drop(columns=meta_cols, errors='ignore'))
+    val_df = makeDiff(val_df.drop(columns=meta_cols, errors='ignore'))
 
-    df = makeDiff(df)
+    train_df = train_df.fillna(-1)
+    val_df = val_df.fillna(-1)
 
-    return df
+    return train_df, val_df
 
 data = pd.read_csv("../../data/merged/data.csv", sep=',')
 
-data = makeFeature(data)
-
-data.to_csv("../../data/featured/data.csv", sep=',', index=False)
+train_df, val_df = makeFeature(data, month_validation=2)
+train_df.to_csv("../../data/featured/train.csv", sep=',', index=False)
+val_df.to_csv("../../data/featured/val.csv", sep=',', index=False)
