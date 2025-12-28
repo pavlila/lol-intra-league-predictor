@@ -17,6 +17,7 @@ dependencies = [
     "bs4>=0.0.2",
     "ipykernel>=7.1.0",
     "pytest>=9.0.2",
+    "streamlit>=1.52.2",
 ]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
