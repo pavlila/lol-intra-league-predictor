@@ -1,8 +1,10 @@
 import streamlit as st
 from pathlib import Path
 import pickle
+import pandas as pd
 
-from process_new_data import processNewData
+from utils.process_new_data import processNewData
+from models.predict import predict_winner
 
 st.title("LOL Intra-League Predictor")
 
@@ -14,8 +16,16 @@ league = st.selectbox("Select League", ["LCS", "LEC", "LCK", "LPL"])
 date = st.date_input("Match Date")
 
 if st.button("Predict Winner"):
-    model_path = Path(__file__).parent / "src" / "models" / "random_forest.pkl"
-    with open(model_path, "rb") as f:
-        model = pickle.load(f)
 
-    
+    df = pd.DataFrame([{
+        "teamA": teamA,
+        "teamB": teamB,
+        "league": league,
+        "date": pd.to_datetime(date)
+    }])
+
+    processed_df = processNewData(df)
+
+    prediction = predict_winner(processed_df)
+    st.write(f"Prediction (Probability Team A wins): {prediction[0][1]:.2f}")
+

@@ -1,7 +1,7 @@
-from clean_new_data import newMatchesCleanByMatch
+from data.clean_new_data import newMatchesCleanByMatch
 import pandas as pd
-from feature_new_data import makeFeature
-from merge_new_data import mergeNewDataWithTeamsData
+from data.feature_new_data import makeFeature
+from data.merge_new_data import mergeNewDataWithTeamsData
 
 def processNewData(df):
     cleaned_df = newMatchesCleanByMatch(df)

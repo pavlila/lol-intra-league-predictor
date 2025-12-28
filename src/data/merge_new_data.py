@@ -62,7 +62,6 @@ def mergeMatchesAndTeamsData(matches, teams):
         teamB = row['teamB']
         date = row['date']
         league = row['league']
-        win = row['teamA_win']
 
         statsA = getStats(teamA, league, date, teams)
         statsB = getStats(teamB, league, date, teams)
@@ -74,8 +73,8 @@ def mergeMatchesAndTeamsData(matches, teams):
         if statsA.empty or statsB.empty:
             continue
 
-        statsA = statsA[[col for col in statsA.index if col not in ['Team','league','date','teamA_win']]]
-        statsB = statsB[[col for col in statsB.index if col not in ['Team','league','date','teamA_win']]]
+        statsA = statsA[[col for col in statsA.index if col not in ['Team','league','date']]]
+        statsB = statsB[[col for col in statsB.index if col not in ['Team','league','date']]]
 
         statsA = statsA.add_suffix("_A")
         statsB = statsB.add_suffix("_B")
@@ -86,7 +85,6 @@ def mergeMatchesAndTeamsData(matches, teams):
         combined_data['teamB'] = teamB
         combined_data['date'] = date
         combined_data['league'] = league
-        combined_data['teamA_win'] = win
 
         merged_rows.append(combined_data)
 
