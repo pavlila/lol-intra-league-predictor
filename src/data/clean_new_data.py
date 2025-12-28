@@ -23,14 +23,10 @@ def renameTeamsInMatches(df):
 
 def newMatchesCleanByMatch(df):
     df.columns = df.columns.str.strip()
-    df = df[['teamA','teamB','date','tournament']].copy()
+    df = df[['teamA','teamB','date','league']].copy()
 
     df = renameTeamsInMatches(df)
 
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
 
     return df
-
-new_match = pd.read_csv("../../user/new_match.csv", sep=',')
-new_match = newMatchesCleanByMatch(new_match)
-new_match.to_csv("../../data/cleaned/new_match.csv", sep=',', index=False)

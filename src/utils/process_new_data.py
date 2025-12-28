@@ -1,27 +1,15 @@
-import subprocess
-import os
+from clean_new_data import newMatchesCleanByMatch
+import pandas as pd
+from feature_new_data import makeFeature
+from merge_new_data import mergeNewDataWithTeamsData
 
-scripts = [
-    '../src/data/clean_new_data.py',
-    '../src/data/merge_new_data.py',
-    '../src/data/feature_new_data.py'
-]
+def processNewData(df):
+    cleaned_df = newMatchesCleanByMatch(df)
 
-for script in scripts:
-    script_path = os.path.abspath(script)
-    script_dir = os.path.dirname(script_path)
-    script_name = os.path.basename(script_path)
+    teams_data = pd.read_csv("../../data/merged/data.csv", sep=',')
 
-    print(f"Running {script_name} in {script_dir}")
+    merged_df = mergeNewDataWithTeamsData(cleaned_df, teams_data)
 
-    result = subprocess.run(
-        ['python3', script_name],
-        cwd=script_dir,
-        capture_output=True,
-        text=True
-    )
+    featured_df = makeFeature(merged_df)
 
-    print(result.stdout)
-    if result.returncode != 0:
-        print(f"Error in {script_name}:\n{result.stderr}")
-        break
+    return featured_df
