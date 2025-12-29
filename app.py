@@ -78,7 +78,7 @@ class LoLPredictorApp:
         if prediction[0] == 1:
             st.success(f"The model predicts that **{team_a}** will win against **{team_b}**.")
         else:
-            st.warning(f"The model predicts that **{team_a}** will lose against **{team_b}**.")
+            st.error(f"The model predicts that **{team_a}** will lose against **{team_b}**.")
 
 if __name__ == "__main__":
     app = LoLPredictorApp()

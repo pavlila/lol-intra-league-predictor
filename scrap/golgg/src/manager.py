@@ -2,7 +2,7 @@ from urllib.parse import quote
 from fetcher import Fetcher
 from parser_matchlist import parse_tournament_matchlist
 from config import BASE_URL, RAW_DIR, INTER_DIR
-import csv, os
+import csv
 
 def slug_to_url(slug: str) -> str:
     encoded = quote(slug, safe='')

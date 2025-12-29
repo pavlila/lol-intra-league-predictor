@@ -36,6 +36,8 @@ class LoLPredictor:
         Returns:
             np.ndarray: An array of probabilities for each class (e.g., [Loss, Win]).
         """
+        if hasattr(self.model, "feature_names_in_"):
+            processed_df = processed_df[self.model.feature_names_in_]
         return self.model.predict_proba(processed_df)
 
     def predict_winner(self, processed_df):
@@ -48,4 +50,6 @@ class LoLPredictor:
         Returns:
             np.ndarray: An array of binary predictions (1 = Team A wins, 0 = Team B wins).
         """
+        if hasattr(self.model, "feature_names_in_"):
+            processed_df = processed_df[self.model.feature_names_in_]
         return self.model.predict(processed_df)
