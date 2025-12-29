@@ -1,26 +1,59 @@
-import subprocess
+from src.data.clean import LoLDataCleaner
+from src.data.merge import LoLDataMerger
+from src.data.feature import LoLDataFeatureEngineer
+import pandas as pd
 import os
+from pathlib import Path
 
-scripts = [
-    '../src/data/clean.py',
-    '../src/data/merge.py',
-    '../src/data/feature.py'
-]
 
-for script in scripts:
-    script_path = os.path.abspath(script)
-    script_dir = os.path.dirname(script_path)
-    script_name = os.path.basename(script_path)
+class LolDataProcessor:
+    """
+    Orchestrates the entire data processing pipeline for League of Legends data.
+    It coordinates cleaning, merging, and feature engineering steps.
+    """
 
-    print(f"Running {script_name} in {script_dir}")
+    def __init__(self):
+        self.base_dir = Path(__file__).resolve().parents[2]
+        self.clean_dir = self.base_dir / "data" / "cleaned"
+        self.merge_dir = self.base_dir / "data" / "merged"
+        self.feature_dir = self.base_dir / "data" / "featured"
 
-    result = subprocess.run(
-        ['python3', script_name],
-        cwd=script_dir,
-        capture_output=True,
-        text=True
-    )
+        self.cleaner = LoLDataCleaner()
+        self.merger = LoLDataMerger()
+        self.feature_engineer = LoLDataFeatureEngineer()
 
-    print(result.stdout)
-    if result.returncode != 0:
-        print(f"Error in {script_name}:\n{result.stderr}")
+    def run_pipeline(self, years=["2023", "2024", "2025"], validation=2):
+        """
+        Executes the full pipeline:
+        1. Cleans raw match and team data.
+        2. Merges team statistics with match results.
+        3. Engineers features and splits data into train/validation sets.
+
+        Args:
+            years (list): List of years to process.
+            validation_months (int): Size of the validation set in months.
+
+        Returns:
+            None
+        """
+        matches = pd.concat(
+            [self.cleaner.clean_matches(year) for year in years], ignore_index=True
+        )
+        teams = self.cleaner.clean_teams()
+
+        matches["date"] = pd.to_datetime(matches["date"])
+        teams["date"] = pd.to_datetime(teams["date"])
+
+        matches.to_csv(os.path.join(self.clean_dir, "matches.csv"), index=False)
+        teams.to_csv(os.path.join(self.clean_dir, "teams.csv"), index=False)
+
+        data = self.merger.merge_teams_and_matches(matches, teams)
+        data.to_csv(os.path.join(self.merge_dir, "data.csv"), index=False)
+
+        train_df, val_df = self.feature_engineer.make_feature(
+            data, validation=validation
+        )
+        train_df.to_csv(os.path.join(self.feature_dir, "train.csv"), index=False)
+        val_df.to_csv(os.path.join(self.feature_dir, "val.csv"), index=False)
+
+        return None

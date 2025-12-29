@@ -1,72 +1,101 @@
 import pandas as pd
 
-def makeMirror(df):
-    """Rozmnoží dataset: každý zápas A vs B dostane i zrcadlenou verzi B vs A."""
 
-    # Kopie původního dataframe
-    df_orig = df.copy()
+class LoLDataFeatureEngineer:
+    """
+    A class for feature engineering and dataset preparation.
+    It creates differential features and splits data into training and validation sets.
+    """
 
-    # Mirror = prohodíme všechny A/B sloupce
-    df_mirror = df.copy()
-    
-    a_cols = [c for c in df.columns if c.endswith('_A')]
-    for a_col in a_cols:
-        base = a_col[:-2]
-        b_col = f"{base}_B"
-        df_mirror[a_col], df_mirror[b_col] = df[b_col], df[a_col]
+    def __init__(self):
+        pass
 
-    # Prohodíme i názvy týmů
-    df_mirror['teamA'], df_mirror['teamB'] = df['teamB'], df['teamA']
+    def make_mirror_matches(self, df):
+        """
+        Doubles the dataset by creating 'mirrored' versions of each match.
+        For every match (Team A vs Team B), it adds a row for (Team B vs Team A).
+        This helps the model learn that the order of teams does not matter.
 
-    # Label musíme zrcadlit → pokud vyhrál A v originálu, v mirroru vyhrál B
-    df_mirror['teamA_win'] = 1 - df['teamA_win']
+        Args:
+            df (pd.DataFrame): The original match dataset.
 
-    # Spojíme originál + mirror
-    df_out = pd.concat([df_orig, df_mirror], ignore_index=True)
+        Returns:
+            pd.DataFrame: A dataset with twice the number of rows (original + mirrored).
+        """
 
-    return df_out
-    
-def makeDiff(df):
-    a_cols = [c for c in df.columns if c.endswith('_A')]
-    diff_data = {}
-    ratio_data = {}
+        df_orig = df.copy()
+        df_mirror = df.copy()
 
-    for a_col in a_cols:
-        base = a_col[:-2]
-        b_col = f"{base}_B"
-        if b_col in df.columns:
-            diff_data[f'diff_{base}'] = df[a_col] - df[b_col]
-            ratio_data[f'ratio_{base}'] = df[a_col] / (df[b_col] + 1e-6)
+        a_cols = [c for c in df.columns if c.endswith("_A")]
+        for a_col in a_cols:
+            base = a_col[:-2]
+            b_col = f"{base}_B"
+            df_mirror[a_col], df_mirror[b_col] = df[b_col], df[a_col]
 
-    df = pd.concat([df, pd.DataFrame(diff_data), pd.DataFrame(ratio_data)], axis=1)
-    drop_cols = [c for c in df.columns if c.endswith('_A') or c.endswith('_B')]
-    df = df.drop(columns=drop_cols)
-    return df
+        df_mirror["teamA"], df_mirror["teamB"] = df["teamB"], df["teamA"]
 
+        df_mirror["teamA_win"] = 1 - df["teamA_win"]
 
-def makeFeature(df, month_validation=1):
-    df['date'] = pd.to_datetime(df['date'])
+        df_out = pd.concat([df_orig, df_mirror], ignore_index=True)
 
-    max_date = df['date'].max()
-    validation_start = max_date - pd.DateOffset(months=month_validation)
+        return df_out
 
-    train_df = df[df['date'] < validation_start].copy()
-    val_df = df[df['date'] >= validation_start].copy()
+    def make_diff(self, df):
+        """
+        Transforms raw stats of two teams into comparative features.
+        Calculates the difference (A - B) and the ratio (A / B) for all metrics.
 
-    train_df = makeMirror(train_df)
+        Args:
+            df (pd.DataFrame): DataFrame with separate columns for Team A and Team B.
 
-    meta_cols = ['teamA', 'teamB', 'league']
-    
-    train_df = makeDiff(train_df.drop(columns=meta_cols, errors='ignore'))
-    val_df = makeDiff(val_df.drop(columns=meta_cols, errors='ignore'))
+        Returns:
+            pd.DataFrame: DataFrame containing only comparative features (diffs and ratios),
+                         with original team-specific columns removed.
+        """
+        a_cols = [c for c in df.columns if c.endswith("_A")]
+        diff_data = {}
+        ratio_data = {}
 
-    train_df = train_df.fillna(-1)
-    val_df = val_df.fillna(-1)
+        for a_col in a_cols:
+            base = a_col[:-2]
+            b_col = f"{base}_B"
+            if b_col in df.columns:
+                diff_data[f"diff_{base}"] = df[a_col] - df[b_col]
+                ratio_data[f"ratio_{base}"] = df[a_col] / (df[b_col] + 1e-6)
 
-    return train_df, val_df
+        df = pd.concat([df, pd.DataFrame(diff_data), pd.DataFrame(ratio_data)], axis=1)
+        drop_cols = [c for c in df.columns if c.endswith("_A") or c.endswith("_B")]
+        df = df.drop(columns=drop_cols)
+        return df
 
-data = pd.read_csv("../../data/merged/data.csv", sep=',')
+    def make_feature(self, df, validation=1):
+        """
+        Main pipeline for preparing training and validation datasets.
+        Splits data by date, augments the training set, and creates features.
 
-train_df, val_df = makeFeature(data, month_validation=2)
-train_df.to_csv("../../data/featured/train.csv", sep=',', index=False)
-val_df.to_csv("../../data/featured/val.csv", sep=',', index=False)
+        Args:
+            df (pd.DataFrame): The merged dataset with all match and team info.
+            validation (int): Number of months from the end of the dataset to use for validation.
+
+        Returns:
+            tuple: (train_df, val_df) - Two DataFrames ready for machine learning.
+        """
+        df["date"] = pd.to_datetime(df["date"])
+
+        max_date = df["date"].max()
+        validation_start = max_date - pd.DateOffset(months=validation)
+
+        train_df = df[df["date"] < validation_start].copy()
+        val_df = df[df["date"] >= validation_start].copy()
+
+        train_df = self.make_mirror_matches(train_df)
+
+        meta_cols = ["teamA", "teamB", "league"]
+
+        train_df = self.make_diff(train_df.drop(columns=meta_cols, errors="ignore"))
+        val_df = self.make_diff(val_df.drop(columns=meta_cols, errors="ignore"))
+
+        train_df = train_df.fillna(-1)
+        val_df = val_df.fillna(-1)
+
+        return train_df, val_df

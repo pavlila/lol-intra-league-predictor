@@ -1,31 +1,85 @@
 import streamlit as st
 from pathlib import Path
-import pickle
 import pandas as pd
 
-from utils.process_new_data import processNewData
-from models.predict import predict_winner
+from src.utils.process_data import LolDataProcessor
+from src.utils.process_new_data import LoLDataNewProcessor
+from src.models.predict import LoLPredictor
 
-st.title("LOL Intra-League Predictor")
+class LoLPredictorApp:
+    """
+    A Streamlit web application that provides a user interface for 
+    the League of Legends match predictor.
+    """
 
-teamA = st.text_input("Team A Name")
-teamB = st.text_input("Team B Name")
+    def __init__(self):
+        """
+        Initializes the application, sets the page title, and 
+        instantiates the required logic components.
+        """
+        st.set_page_config(page_title="LOL Predictor", layout="centered")
+        self.processor = LolDataProcessor()
+        self.processor_new = LoLDataNewProcessor()
+        self.predictor = LoLPredictor()
 
-league = st.selectbox("Select League", ["LCS", "LEC", "LCK", "LPL"])
+    def run(self):
+        """
+        Renders the Streamlit UI and handles user interactions.
+        """
+        st.title("LOL Intra-League Predictor")
+        st.subheader("Predict outcomes of upcoming professional matches")
 
-date = st.date_input("Match Date")
+        with st.sidebar:
+            st.header("Admin Tools")
+            if st.button("Run Data Processing Pipeline"):
+                with st.spinner("Processing historical data..."):
+                    self.processor.run_pipeline()
+                    st.success("Pipeline finished!")
 
-if st.button("Predict Winner"):
+        col1, col2 = st.columns(2)
+        with col1:
+            team_a = st.text_input("Team A Name", placeholder="e.g. T1")
+        with col2:
+            team_b = st.text_input("Team B Name", placeholder="e.g. Gen.G")
 
-    df = pd.DataFrame([{
-        "teamA": teamA,
-        "teamB": teamB,
-        "league": league,
-        "date": pd.to_datetime(date)
-    }])
+        league = st.selectbox("Select League", ["LCS", "LEC", "LCK", "LPL", "LCP"])
+        date = st.date_input("Match Date")
 
-    processed_df = processNewData(df)
+        if st.button("Predict Winner", use_container_width=True):
+            if team_a and team_b:
+                self._handle_prediction(team_a, team_b, league, date)
+            else:
+                st.error("Please enter both team names.")
 
-    prediction = predict_winner(processed_df)
-    st.write(f"Prediction (Probability Team A wins): {prediction[0][1]:.2f}")
+    def _handle_prediction(self, team_a, team_b, league, date):
+        """
+        Internal method to process data and display prediction results.
+        """
+        match_df = pd.DataFrame([{
+            "teamA": team_a,
+            "teamB": team_b,
+            "league": league,
+            "date": pd.to_datetime(date),
+        }])
 
+        with st.spinner("Analyzing stats..."):
+            processed_df = self.processor_new.run_pipeline(match_df)
+            
+            prediction = self.predictor.predict_winner(processed_df)
+            probability = self.predictor.predict_winner_probability(processed_df)
+
+        st.divider()
+        result_label = "WIN" if prediction[0] == 1 else "LOSS"
+        st.metric(label=f"Prediction for {team_a}", value=result_label)
+        
+        prob_val = probability[0][1]
+        st.progress(prob_val, text=f"Winning Probability: {prob_val:.2f}")
+        
+        if prediction[0] == 1:
+            st.success(f"The model predicts that **{team_a}** will win against **{team_b}**.")
+        else:
+            st.warning(f"The model predicts that **{team_a}** will lose against **{team_b}**.")
+
+if __name__ == "__main__":
+    app = LoLPredictorApp()
+    app.run()

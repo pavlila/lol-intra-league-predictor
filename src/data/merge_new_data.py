@@ -1,93 +1,117 @@
 import pandas as pd
 
-def getStats(team, league, date, teamsStats):
-    # 1. Najdi veškerou historii týmu v této lize před daným datem
-    teamDataPast = teamsStats[
-        (teamsStats['Team'] == team) & 
-        (teamsStats['league'] == league) & 
-        (teamsStats['date'] < date)
-    ].sort_values('date', ascending=False)
 
-    if teamDataPast.empty:
-        return pd.Series(dtype=float)
+class LoLNewDataMerger:
+    """
+    A class to merge upcoming match data with historical performance statistics.
+    Designed specifically to prepare new data for real-time predictions.
+    """
 
-    # Nejčerstvější data, co máme (i kdyby GP bylo jen 1)
-    teamLastData = teamDataPast.iloc[0]
+    def __init__(self):
+        """
+        Initializes the merger with a standard list of numeric performance metrics.
+        """
+        self.numeric_cols = [
+            "AGT", "KD", "CKPM", "GSPD", "GD15", "FB%", "FT%", "F3T%",
+            "PPG", "HLD%", "GRB%", "FD%", "DRG%", "ELD%", "FBN%", "BN%",
+            "LNE%", "JNG%", "WPM", "CWPM", "WCPM", "winrate%",
+        ]
 
-    # Pokud už máme v aktuálním splitu/roce dost dat, použijeme je přímo
-    if teamLastData.GP > 5:
-        return teamLastData.drop(labels=['date','Team','league'], errors='ignore')
+    def getStats(self, team, league, date, teamsStats):
+        """
+        Retrieves historical statistics for a team before a specific date.
+        If current season data is insufficient, it blends it with the last 
+        stable performance data using a weighted average.
 
-    # Pokud máme GP <= 5, hledáme v historii STEJNÉ ligy záznam, kde bylo GP > 5
-    # (Tzn. hledáme konec předchozího splitu/sezóny této ligy)
-    stable_past_data = teamDataPast[teamDataPast['GP'] > 5]
+        Args:
+            team (str): The name of the team.
+            league (str): The league context.
+            date (pd.Timestamp): The date of the upcoming match.
+            teamsStats (pd.DataFrame): The database of historical team performances.
 
-    if stable_past_data.empty:
-        # Pokud jsme v této lize nikdy nenašli stabilní data (GP > 5), 
-        # vrátíme prázdno (zápas se zahodí)
-        return pd.Series(dtype=float)
+        Returns:
+            pd.Series: Weighted team statistics or an empty Series if no data exists.
+        """
+        teamDataPast = teamsStats[
+            (teamsStats["Team"] == team)
+            & (teamsStats["league"] == league)
+            & (teamsStats["date"] < date)
+        ].sort_values("date", ascending=False)
 
-    # Nejnovější stabilní záznam z minulosti
-    teamLastStable = stable_past_data.iloc[0]
+        if teamDataPast.empty:
+            return pd.Series(dtype=float)
 
-    # --- LOGIKA SPOJENÍ (Vážený průměr) ---
-    gp_stable = min(teamLastStable.GP, 5) # Omezíme vliv starých dat, aby nová měla váhu
-    gp_curr = teamLastData.GP
-    gp_total = gp_stable + gp_curr
+        teamLastData = teamDataPast.iloc[0]
 
-    combined_data = pd.Series(dtype=float)
-    combined_data['GP'] = gp_total
+        if teamLastData.GP > 5:
+            return teamLastData.drop(labels=["date", "Team", "league"], errors="ignore")
 
-    numeric_cols = [
-        'AGT','KD','CKPM','GSPD','GD15',
-        'FB%','FT%','F3T%','PPG','HLD%','GRB%','FD%','DRG%','ELD%',
-        'FBN%','BN%','LNE%','JNG%','WPM','CWPM','WCPM','winrate%'
-    ]
+        stable_past_data = teamDataPast[teamDataPast["GP"] > 5]
 
-    # Spočítáme vážený průměr pro všechny metriky
-    for col in numeric_cols:
-        if col in teamLastData and col in teamLastStable:
-            combined_data[col] = (
-                (teamLastData[col] * gp_curr) + (teamLastStable[col] * gp_stable)
-            ) / gp_total
+        if stable_past_data.empty:
+            return pd.Series(dtype=float)
 
-    return combined_data
+        teamLastStable = stable_past_data.iloc[0]
 
-def mergeMatchesAndTeamsData(matches, teams):
-    merged_rows = []
-    missing_A = 0
-    missing_B = 0
-    for _, row in matches.iterrows():
-        teamA = row['teamA']
-        teamB = row['teamB']
-        date = row['date']
-        league = row['league']
+        gp_stable = min(teamLastStable.GP, 5)
+        gp_curr = teamLastData.GP
+        gp_total = gp_stable + gp_curr
 
-        statsA = getStats(teamA, league, date, teams)
-        statsB = getStats(teamB, league, date, teams)
+        combined_data = pd.Series(dtype=float)
+        combined_data["GP"] = gp_total
 
-        if statsA.empty:
-            missing_A += 1
-        if statsB.empty:
-            missing_B += 1
-        if statsA.empty or statsB.empty:
-            continue
+        for col in self.numeric_cols:
+            if col in teamLastData and col in teamLastStable:
+                combined_data[col] = (
+                    (teamLastData[col] * gp_curr) + (teamLastStable[col] * gp_stable)
+                ) / gp_total
 
-        statsA = statsA[[col for col in statsA.index if col not in ['Team','league','date']]]
-        statsB = statsB[[col for col in statsB.index if col not in ['Team','league','date']]]
+        return combined_data
 
-        statsA = statsA.add_suffix("_A")
-        statsB = statsB.add_suffix("_B")
+    def merge_new_teams_and_matches(self, matches, teams):
+        """
+        Combines a list of new matches with historical stats for both competing teams.
 
-        combined_data = pd.concat([statsA, statsB])
+        Args:
+            matches (pd.DataFrame): New matches (teamA, teamB, date, league).
+            teams (pd.DataFrame): Historical performance database.
 
-        combined_data['teamA'] = teamA
-        combined_data['teamB'] = teamB
-        combined_data['date'] = date
-        combined_data['league'] = league
+        Returns:
+            pd.DataFrame: A dataset enriched with historical features for prediction.
+        """
+        merged_rows = []
+        missing_A = 0
+        missing_B = 0
 
-        merged_rows.append(combined_data)
+        for _, row in matches.iterrows():
+            teamA, teamB = row["teamA"], row["teamB"]
+            date, league = row["date"], row["league"]
 
-    print(f"Missing stats for teamA: {missing_A}, teamB: {missing_B}")
+            statsA = self.getStats(teamA, league, date, teams)
+            statsB = self.getStats(teamB, league, date, teams)
 
-    return pd.DataFrame(merged_rows).reset_index(drop=True)
+            if statsA.empty:
+                missing_A += 1
+            if statsB.empty:
+                missing_B += 1
+            
+            if statsA.empty or statsB.empty:
+                continue
+
+            statsA = statsA[[c for c in statsA.index if c not in ["Team", "league", "date"]]]
+            statsB = statsB[[c for c in statsB.index if c not in ["Team", "league", "date"]]]
+
+            statsA = statsA.add_suffix("_A")
+            statsB = statsB.add_suffix("_B")
+
+            combined_data = pd.concat([statsA, statsB])
+            combined_data["teamA"] = teamA
+            combined_data["teamB"] = teamB
+            combined_data["date"] = date
+            combined_data["league"] = league
+
+            merged_rows.append(combined_data)
+
+        print(f"Merge complete. Missing stats: Team A: {missing_A}, Team B: {missing_B}")
+
+        return pd.DataFrame(merged_rows).reset_index(drop=True)
