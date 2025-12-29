@@ -15,24 +15,21 @@ DATA_PATH = BASE_DIR / "data" / "featured"
 train = pd.read_csv(DATA_PATH / "train.csv", sep=',')
 val = pd.read_csv(DATA_PATH / "val.csv", sep=',')
 
-Xtrain = train.drop(columns=['teamA_win'])
-ytrain = train['teamA_win']
+data = pd.concat([train, val], ignore_index=True)
 
-Xval = val.drop(columns=['teamA_win'])
-yval = val['teamA_win']
+Xdata = data.drop(columns=['teamA_win'])
+ydata = data['teamA_win']
 
-Xtrain['date'] = pd.to_datetime(Xtrain['date'])
-Xval['date'] = pd.to_datetime(Xval['date'])
+Xdata['date'] = pd.to_datetime(Xdata['date'])
 
-min_date = Xtrain['date'].min()
-max_date = Xtrain['date'].max()
-sample_weight = (Xtrain['date'] - min_date) / (max_date - min_date)
+min_date = Xdata['date'].min()
+max_date = Xdata['date'].max()
+sample_weight = (Xdata['date'] - min_date) / (max_date - min_date)
 
-Xtrain = Xtrain.drop(columns=['date'])
-Xval = Xval.drop(columns=['date'])
+Xdata = Xdata.drop(columns=['date'])
 
 rf = RandomForestClassifier(n_estimators=18, max_depth=8, min_samples_leaf=1, min_samples_split=5, random_state=random_seed)
-rf.fit(Xtrain, ytrain, sample_weight=sample_weight)
+rf.fit(Xdata, ydata, sample_weight=sample_weight)
 
 SCRIPT_DIR = Path(__file__).parent
 MODEL_PATH = SCRIPT_DIR / "random_forest.pkl"

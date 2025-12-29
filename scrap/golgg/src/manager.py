@@ -1,44 +1,63 @@
 from urllib.parse import quote
 from fetcher import Fetcher
-from parser_matchlist import parse_tournament_matchlist
-from config import BASE_URL, RAW_DIR, INTER_DIR
+from parser_matchlist import GolParser
+from config import BASE_URL, DATA_DIR
 import csv
+from pathlib import Path
 
-def slug_to_url(slug: str) -> str:
-    encoded = quote(slug, safe='')
-    return f"{BASE_URL}/tournament/tournament-matchlist/{encoded}/"
 
-def scrape_tournament_matchlist(tournament_name: str, out_csv: str = None):
-    url = slug_to_url(tournament_name)
-    fetcher = Fetcher()
-    resp = fetcher.get(url)
+class GolManager:
+    """
+    Manages the scraping workflow for GOL.gg tournaments.
+    """
 
-    html = resp.text
+    def __init__(self):
+        self.fetcher = Fetcher()
+        self.parser = GolParser()
+        self.base_url = BASE_URL
 
-    matches = parse_tournament_matchlist(html)
+    def _slug_to_url(self, slug: str) -> str:
+        encoded = quote(slug, safe="")
+        return f"{self.base_url}/tournament/tournament-matchlist/{encoded}/"
 
-    out_csv = out_csv or (INTER_DIR / f"{tournament_name.replace('/','_')}_matches.csv")
-    out_csv.parent.mkdir(parents=True, exist_ok=True)
-    with open(out_csv, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=matches[0].keys())
-        writer.writeheader()
-        writer.writerows(matches)
-    print(f"[OK] Saved {len(matches)} matches to {out_csv}")
-    return matches
+    def scrape_tournament_matchlist(self, tournament_name: str, out_csv: Path = None):
+        url = self._slug_to_url(tournament_name)
+        resp = self.fetcher.get(url)
 
-def scrape_many(tournaments):
-    for i, name in enumerate(tournaments):
-        try:
-            matches = scrape_tournament_matchlist(name)
-        except Exception as e:
-            continue
+        matches = self.parser.parse_tournament_matchlist(resp.text)
 
-def load_tournaments_from_file(path: str):
-    tournaments = []
-    with open(path, encoding='utf-8') as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith('#'):
+        if not matches:
+            print(f"[!] No matches found for {tournament_name}")
+            return []
+
+        if out_csv is None:
+            safe_name = tournament_name.replace("/", "_")
+            out_csv = DATA_DIR / f"{safe_name}_matches.csv"
+
+        out_csv.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(out_csv, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=matches[0].keys())
+            writer.writeheader()
+            writer.writerows(matches)
+
+        print(f"[OK] Saved {len(matches)} matches to {out_csv}")
+        return matches
+
+    def scrape_many(self, tournaments: list):
+        for name in tournaments:
+            try:
+                self.scrape_tournament_matchlist(name)
+            except Exception as e:
+                print(f"[ERROR] Failed to scrape {name}: {e}")
                 continue
-            tournaments.append(line)
-    return tournaments
+
+    @staticmethod
+    def load_tournaments_from_file(path: str):
+        tournaments = []
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    tournaments.append(line)
+        return tournaments

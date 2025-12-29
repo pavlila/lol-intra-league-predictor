@@ -1,12 +1,17 @@
-import os
 import sys
 import argparse
+from pathlib import Path
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.abspath(os.path.join(current_dir, '..'))
-sys.path.insert(0, project_root)
+CURRENT_DIR = Path(__file__).resolve().parent
 
-from manager import scrape_many, load_tournaments_from_file
+PARENT_DIR = CURRENT_DIR.parent
+
+for d in [str(CURRENT_DIR), str(PARENT_DIR)]:
+    if d not in sys.path:
+        sys.path.insert(0, d)
+
+from manager import GolManager
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -15,9 +20,14 @@ def main():
 
     if not args.list:
         print("need --list tournaments.txt")
-        return 
-    tournaments = load_tournaments_from_file(args.list)
-    scrape_many(tournaments)
+        return
+
+    list_path = CURRENT_DIR / args.list
+
+    manager = GolManager()
+    tournaments = manager.load_tournaments_from_file(list_path)
+    manager.scrape_many(tournaments)
+
 
 if __name__ == "__main__":
     main()
