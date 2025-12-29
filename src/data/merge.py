@@ -13,6 +13,11 @@ class LoLDataMerger:
         Initializes the merger with a list of numeric columns to be processed.
         """
         self.numeric_cols = [
+            "GP",
+            "W",
+            "L",
+            "K",
+            "D",
             "AGT",
             "KD",
             "CKPM",

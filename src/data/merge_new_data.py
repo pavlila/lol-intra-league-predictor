@@ -12,15 +12,39 @@ class LoLNewDataMerger:
         Initializes the merger with a standard list of numeric performance metrics.
         """
         self.numeric_cols = [
-            "AGT", "KD", "CKPM", "GSPD", "GD15", "FB%", "FT%", "F3T%",
-            "PPG", "HLD%", "GRB%", "FD%", "DRG%", "ELD%", "FBN%", "BN%",
-            "LNE%", "JNG%", "WPM", "CWPM", "WCPM", "winrate%",
+            "GP",
+            "W",
+            "L",
+            "K",
+            "D",
+            "AGT",
+            "KD",
+            "CKPM",
+            "GSPD",
+            "GD15",
+            "FB%",
+            "FT%",
+            "F3T%",
+            "PPG",
+            "HLD%",
+            "GRB%",
+            "FD%",
+            "DRG%",
+            "ELD%",
+            "FBN%",
+            "BN%",
+            "LNE%",
+            "JNG%",
+            "WPM",
+            "CWPM",
+            "WCPM",
+            "winrate%",
         ]
 
     def getStats(self, team, league, date, teamsStats):
         """
         Retrieves historical statistics for a team before a specific date.
-        If current season data is insufficient, it blends it with the last 
+        If current season data is insufficient, it blends it with the last
         stable performance data using a weighted average.
 
         Args:
@@ -94,12 +118,16 @@ class LoLNewDataMerger:
                 missing_A += 1
             if statsB.empty:
                 missing_B += 1
-            
+
             if statsA.empty or statsB.empty:
                 continue
 
-            statsA = statsA[[c for c in statsA.index if c not in ["Team", "league", "date"]]]
-            statsB = statsB[[c for c in statsB.index if c not in ["Team", "league", "date"]]]
+            statsA = statsA[
+                [c for c in statsA.index if c not in ["Team", "league", "date"]]
+            ]
+            statsB = statsB[
+                [c for c in statsB.index if c not in ["Team", "league", "date"]]
+            ]
 
             statsA = statsA.add_suffix("_A")
             statsB = statsB.add_suffix("_B")
@@ -112,6 +140,8 @@ class LoLNewDataMerger:
 
             merged_rows.append(combined_data)
 
-        print(f"Merge complete. Missing stats: Team A: {missing_A}, Team B: {missing_B}")
+        print(
+            f"Merge complete. Missing stats: Team A: {missing_A}, Team B: {missing_B}"
+        )
 
         return pd.DataFrame(merged_rows).reset_index(drop=True)

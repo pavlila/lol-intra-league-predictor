@@ -73,7 +73,7 @@ class LoLPredictorApp:
         st.metric(label=f"Prediction for {team_a}", value=result_label)
         
         prob_val = probability[0][1]
-        st.progress(prob_val, text=f"Winning Probability: {prob_val:.2f}")
+        st.write(f"Winning Probability: {prob_val:.2f}")
         
         if prediction[0] == 1:
             st.success(f"The model predicts that **{team_a}** will win against **{team_b}**.")
