@@ -42,7 +42,7 @@ class LoLPredictorApp:
         with col2:
             team_b = st.text_input("Team B Name", placeholder="e.g. Gen.G")
 
-        league = st.selectbox("Select League", ["LCS", "LEC", "LCK", "LPL", "LCP"])
+        league = st.selectbox("Select League", ["LEC", "LCK", "LPL", "LTA N", "LTA S", "LCP"])
         date = st.date_input("Match Date")
 
         if st.button("Predict Winner", use_container_width=True):
@@ -50,6 +50,26 @@ class LoLPredictorApp:
                 self._handle_prediction(team_a, team_b, league, date)
             else:
                 st.error("Please enter both team names.")
+
+        st.markdown("""
+        ---
+        The model is trained on historical match data up to 2025, with the final matches of each league excluded.
+
+        For realistic evaluation, the following matches represent the last matches played in each league:
+
+        * Movistar KOI vs. G2 Esports (LEC, 2025-09-28) -> in reality, G2 Esports won
+
+        * Hanwha Life Esports vs. Gen.G (LCK, 2025-09-28) -> in reality, Gen.G won
+
+        * Invictus Gaming vs. JD Gaming (LPL, 2025-09-27) -> in reality, Invictus Gaming won
+                    
+        * FlyQuest vs. 100 Thieves (LTA N, 2025-09-07) -> in reality, FlyQuest won
+                    
+        * RED Canids vs. Vivo Keyd Stars (LTA S, 2025-09-07) -> in reality, Vivo Keyd Stars won
+                    
+        * CTBC Flying Oyster vs. Team Secret Whales (LCP, 2025-09-21) -> in reality, CTBC Flying Oyster won
+
+        """)
 
     def _handle_prediction(self, team_a, team_b, league, date):
         """
