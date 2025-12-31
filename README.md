@@ -435,7 +435,19 @@ League of Legends is a highly dynamic game with monthly patches and meta shifts.
 
 ## how to use it (Linux)
 
-TO DO
+- Clone the repository
+  
+          git clone
+
+          cd lol-intra-league-predictor
+
+- Sync the environment
+
+          uv sync
+
+- Running the Application
+
+          uv run streamlit run app.py
 
 
 ## Validation accuracy
