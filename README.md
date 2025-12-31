@@ -315,12 +315,13 @@ The model dynamically adapts to the most up-to-date team statistics and performa
   A custom scraper is used to collect match data from this source.
 
   - `scrap/golgg/src/tournaments.txt` contains the list of tournaments to be scraped  
-  - `scrap/golgg/src/scraped_tournaments.txt` keeps track of tournaments that have already been scraped  
+  - `scrap/golgg/src/scraped_tournaments.txt` keeps track of tournaments that have already been scraped
+ 
+  
+  To run the scraper:
 
- To run the scraper:
-
-   ```bash
-   uv run python scrap/golgg/src/main.py
+  ```bash
+  uv run python scrap/golgg/src/main.py
 
 ## Data Preprocessing
 
