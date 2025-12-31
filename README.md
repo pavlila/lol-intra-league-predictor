@@ -1,4 +1,4 @@
-# lol-worlds-2025-predict
+# lol-intra-league-predictor
 
 This project predicts the outcomes of League of Legends matches within individual leagues using match data from [gol.gg](https://gol.gg/) and team statistics from [oracleselixir.com](https://oracleselixir.com/). 
 It focuses exclusively on intra-league predictions. 
