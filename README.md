@@ -303,6 +303,45 @@ The model dynamically adapts to the most up-to-date team statistics and performa
 </details>
 
 
+
+## Scraping data
+
+- [oracleselixir.com](https://oracleselixir.com/):
+  
+  The website provides a yearly CSV file containing all available data.  
+  This file is downloaded directly into the `scrap/oracleselixir` directory.
+
+- [gol.gg](https://gol.gg/):
+  
+  A custom scraper is used to collect match data from this source.
+
+  - `scrap/golgg/src/tournaments.txt` contains the list of tournaments to be scraped  
+  - `scrap/golgg/src/scraped_tournaments.txt` keeps track of tournaments that have already been scraped  
+
+ To run the scraper:
+
+    ```bash
+    uv run python scrap/golgg/src/main.py
+
+## Data Preprocessing
+
+- [gol.gg](https://gol.gg/):
+  
+  The match data is processed in a forward-only manner to prevent data leakage.  
+  The match outcome is converted into a binary target variable.
+
+- [oracleselixir.com](https://oracleselixir.com/)
+  
+  Since the full dataset is downloaded from the website, extensive preprocessing is required.  
+  The list of engineered features is described in the **About Data** section.
+
+  Data consistency checks are implemented to verify that the processed data matches the values presented on the website.
+
+  To run the preprocessing tests:
+
+  ```bash
+  uv run pytest
+
 ## About data
 
 <details>
@@ -436,19 +475,24 @@ League of Legends is a highly dynamic game with monthly patches and meta shifts.
 ## how to use it (Linux)
 
 - Clone the repository
-  
-          git clone https://github.com/pavlila/lol-intra-league-predictor.git
 
-          cd lol-intra-league-predictor
+  ```bash
+  git clone https://github.com/pavlila/lol-intra-league-predictor.git
+
+  cd lol-intra-league-predictor
 
 - Sync the environment
 
-          uv sync
+  ```bash
+  uv sync
+
 
 - Running the Application
 
-          uv run streamlit run app.py
+  ```bash
+  uv run streamlit run app.py
 
+At the bottom of the application, I prepare the most recent matches from each league in the 2025 season to simulate realistic predictions.
 
 ## Validation accuracy
 
