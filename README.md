@@ -303,7 +303,6 @@ The model dynamically adapts to the most up-to-date team statistics and performa
 </details>
 
 
-
 ## Scraping data
 
 - [oracleselixir.com](https://oracleselixir.com/):
@@ -320,8 +319,8 @@ The model dynamically adapts to the most up-to-date team statistics and performa
 
  To run the scraper:
 
-    ```bash
-    uv run python scrap/golgg/src/main.py
+   ```bash
+   uv run python scrap/golgg/src/main.py
 
 ## Data Preprocessing
 
@@ -485,7 +484,6 @@ League of Legends is a highly dynamic game with monthly patches and meta shifts.
 
   ```bash
   uv sync
-
 
 - Running the Application
 
