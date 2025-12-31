@@ -1,13 +1,15 @@
 import time
+
 import requests
+from requests.exceptions import RequestException
 from tenacity import (
     retry,
+    retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
 )
-from requests.exceptions import RequestException
-from config import USER_AGENT, REQUEST_DELAY, MAX_RETRIES, TIMEOUT
+
+from config import MAX_RETRIES, REQUEST_DELAY, TIMEOUT, USER_AGENT
 
 
 class Fetcher:

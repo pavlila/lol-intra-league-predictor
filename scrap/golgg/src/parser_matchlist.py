@@ -1,6 +1,7 @@
+import re
+
 from bs4 import BeautifulSoup
 from dateutil import parser as dparser
-import re
 
 
 class GolParser:

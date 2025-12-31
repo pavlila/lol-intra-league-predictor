@@ -1,6 +1,6 @@
-import sys
 import argparse
 from pathlib import Path
+import sys
 
 CURRENT_DIR = Path(__file__).resolve().parent
 

@@ -1,5 +1,5 @@
-import pickle
 from pathlib import Path
+import pickle
 
 
 class LoLPredictor:

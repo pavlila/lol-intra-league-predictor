@@ -1,9 +1,10 @@
-from urllib.parse import quote
-from fetcher import Fetcher
-from parser_matchlist import GolParser
-from config import BASE_URL, DATA_DIR
 import csv
 from pathlib import Path
+from urllib.parse import quote
+
+from config import BASE_URL, DATA_DIR
+from fetcher import Fetcher
+from parser_matchlist import GolParser
 
 
 class GolManager:

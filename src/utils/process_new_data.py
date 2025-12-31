@@ -1,6 +1,8 @@
-from src.data.clean_new_data import LoLNewDataCleaner
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
+
+from src.data.clean_new_data import LoLNewDataCleaner
 from src.data.feature_new_data import LoLNewDataFeatureEngineer
 from src.data.merge_new_data import LoLNewDataMerger
 
