@@ -6,118 +6,347 @@ The model dynamically adapts to the most up-to-date team statistics and performa
 
 ## Used tournaments
 
-$(YEARS) = {
-        2025
-        }
-
+<details>
+<summary><b>Click to expand 2025 Tournaments</b></summary>
+        
 - LPL
 
-        LPL $YEARS Split 1 
+        LPL 2025 Split 1 
 
-        LPL $YEARS Split 1 Playoffs
+        LPL 2025 Split 1 Playoffs
 
-        LPL $YEARS Split 2 Placements
+        LPL 2025 Split 2 Placements
 
-        LPL $YEARS Split 2
+        LPL 2025 Split 2
 
-        LPL $YEARS Split 2 Playoffs
+        LPL 2025 Split 2 Playoffs
 
-        LPL $YEARS Split 3
+        LPL 2025 Split 3
+
+        LPL 2025 Grand Finals
+
+        LPL 2025 Regional Finals
 
 - LEC
 
-        LEC $YEARS Winter
+        LEC 2025 Winter
 
-        LEC $YEARS Winter Playoffs
+        LEC 2025 Winter Playoffs
 
-        LEC $YEARS Spring Season
+        LEC 2025 Spring Season
 
-        LEC $YEARS Spring Playoffs
+        LEC 2025 Spring Playoffs
 
-        LEC $YEARS Summer Season
+        LEC 2025 Summer Season
+
+        LEC 2025 Summer Playoffs
 
 - LCK
 
-        LCK $YEARS Cup
+        LCK 2025 Cup
 
-        LCK $YEARS Rounds 1-2
+        LCK 2025 Rounds 1-2
 
-        LCK $YEARS Road to MSI
+        LCK 2025 Road to MSI
 
-        LCK $YEARS Rounds 3-5
+        LCK 2025 Rounds 3-5
 
 - LTA N
 
-        LTA North $YEARS Split 1
+        LTA North 2025 Split 1
 
-        LTA North $YEARS Split 2
+        LTA North 2025 Split 2
 
-        LTA North $YEARS Split 2 Playoffs
+        LTA North 2025 Split 2 Playoffs
 
-        LTA North $YEARS Split 3
+        LTA North 2025 Split 3
 
 - LTA S
 
-        LTA South $YEARS Split 1
+        LTA South 2025 Split 1
 
-        LTA South $YEARS Split 2
+        LTA South 2025 Split 2
 
-        LTA South $YEARS Split 2 Playoffs
+        LTA South 2025 Split 2 Playoffs
 
-        LTA South $YEARS Split 3
+        LTA South 2025 Split 3
 
 - LCP
 
-        LCP $YEARS Season Kickoff
+        LCP 2025 Season Kickoff
 
-        LCP $YEARS Season Kickoff Qualifying Series
+        LCP 2025 Season Kickoff Qualifying Series
 
-        LCP $YEARS Mid Season
+        LCP 2025 Mid Season
 
-        LCP $YEARS Mid Season Qualifying Series
+        LCP 2025 Mid Season Qualifying Series
 
-        LCP $YEARS Season Finals
+        LCP 2025 Season Finals
+
+        LCP 2025 Season Finals Playoffs
+</details>
+
+<details>
+<summary><b>Click to expand 2024 Tournaments</b></summary>
+        
+- LPL
+
+        LPL Spring 2024
+  
+        LPL Spring Playoffs 2024
+  
+        LPL Summer Placements 2024
+  
+        LPL Summer Season 2024
+  
+        LPL Summer Playoffs 2024
+  
+        LPL Regional Finals 2024
+
+- LEC
+
+        LEC Winter Season 2024
+
+        LEC Winter Playoffs 2024
+
+        LEC Spring Season 2024
+
+        LEC Spring Playoffs 2024
+
+        LEC Summer Season 2024
+
+        LEC Summer Playoffs 2024
+
+        LEC Season Finals 2024
+
+- LCK
+
+        LCK Spring 2024
+
+        LCK Spring Playoffs 2024
+
+        LCK Summer 2024
+
+        LCK Summer Playoffs 2024
+
+        LCK Regional Finals 2024
+
+- LCS
+
+        LCS Spring 2024
+
+        LCS Spring Playoffs 2024
+
+        LCS Summer 2024
+
+        LCS Championship 2024
+
+- CBLOL
+
+        CBLOL Split 1 2024
+
+        CBLOL Split 1 Playoffs 2024
+
+        CBLOL Split 2 2024
+
+        CBLOL Split 2 Playoffs 2024
+
+- LLA
+
+        LLA Opening 2024
+
+        LLA Opening Playoffs 2024
+
+        LLA Closing 2024 
+
+        LLA Closing Playoffs 2024
+
+- PCS
+
+        PCS Spring 2024
+
+        PCS Spring Playoffs 2024
+
+        PCS Summer 2024
+
+        PCS Summer Playoffs 2024
+
+- VCS
+
+        VCS Spring 2024
+
+        VCS Spring Playoffs 2024
+
+        VCS Summer 2024
+
+        VCS Summer Playoffs 2024
+
+- LJL
+
+        LJL Spring 2024
+
+        LJL Spring Playoffs 2024
+
+        LJL Summer 2024
+
+        LJL Summer Playoffs 2024
+</details>
+
+<details>
+<summary><b>Click to expand 2023 Tournaments</b></summary>
+        
+- LPL
+
+        LPL Spring 2023
+
+        LPL Spring Playoffs 2023
+  
+        LPL Summer 2023
+
+        LPL Summer Playoffs 2023
+
+        LPL Regional Finals 2023
+
+- LEC
+
+        LEC Winter 2023
+
+        LEC Winter Groups 2023
+
+        LEC Winter Playoffs 2023
+
+        LEC Spring Season 2023
+
+        LEC Spring Groups 2023
+
+        LEC Spring Playoffs 2023
+
+        LEC Summer 2023
+
+        LEC Summer Groups 2023
+
+        LEC Summer Playoffs 2023
+
+        LEC Season Finals 2023
+
+- LCK
+
+        LCK Spring 2023
+
+        LCK Spring Playoffs 2023
+
+        LCK Summer 2023
+
+        LCK Summer Playoffs 2023
+
+        LCK Regional Finals 2023
+
+- LCS
+
+        LCS Spring 2023
+
+        LCS Spring Playoffs 2023
+
+        LCS Summer 2023
+
+        LCS Championship 2023
+
+- CBLOL
+
+        CBLOL Split 1 2023
+
+        CBLOL Split 1 Playoffs 2023
+
+        CBLOL Split 2 2023
+
+        CBLOL Split 2 Playoffs 2023
+
+- LLA
+
+        LLA Opening 2023
+
+        LLA Opening Playoffs 2023
+
+        LLA Closing 2023
+
+        LLA Closing Playoffs 2023
+
+- PCS
+
+        PCS Spring 2023
+
+        PCS Spring Playoffs 2023
+
+        PCS Summer 2023
+
+        PCS Summer Playoffs 2023
+
+- VCS
+
+        VCS Spring 2023
+
+        VCS Spring Playoffs 2023
+
+        VCS Summer 2023
+
+        VCS Summer Playoffs 2023
+
+- LJL
+
+        LJL Spring 2023
+
+        LJL Spring Playoffs 2023
+
+        LJL Summer 2023
+
+        LJL Summer Playoffs 2023
+</details>
 
 
 ## About data
+
+<details>
+<summary><b>Click to expand Data details</b></summary>
 
   - All the data presented below comes after the data cleaning phase
 
      - Matches data
    
-           tournament: Tournament Name
+           teamA: Name of the First Team
+       
+           teamB: Name of the Second Team
 
            date: Date of the Match
-
-           teamA: Name of the First Team
-
-           teamB: Name of the Second Team
+       
+           league: League Name
 
            teamA_win: Binary outcome - 1 if the first team wins, 0 if the second team wins
 
      - Teams data
    
-           tournament: Tournament Name
+           league: League Name
 
            date: Date on which the statistic was recorded (aggregated from the start of the tournament up to this date
 
            Team: Team Name
 
            GP: Games Played
+   
+           W: Number of wins
+   
+           L: Number of losses
 
            AGT: Average game time/duration, in minutes
+   
+           K: Overall Kills
+   
+           D: Overall Deaths
 
            KD: Kill-to-Death Ratio
 
            CKPM: Average combined kills per minute (team kills + opponent kills)
 
-           GPR: Gold percent rating (average amount of game's total gold held, relative to 50%)
-
            GSPD: Average gold spent percentage difference
-
-           EGR: Early-Game Rating
-
-           MLR: Mid/Late Rating
 
            GD15: Average gold difference at 15 minutes
 
@@ -154,10 +383,11 @@ $(YEARS) = {
            WCPM: Average wards cleared per minute
 
            winrate%: W/GP ratio (Win/Games Played)
-
-               - The raw statistics for Wins (W) and Losses (L) were removed after computing the win rate percentage (winrate%)
+</details>
 
 ## Team-Match Linking Logic
+
+    *update - threshold is currently on 5 matches
 
 The team–match linking logic is separated into three distinct cases:
 
@@ -182,8 +412,26 @@ The team–match linking logic is separated into three distinct cases:
 - Create difference and ratio features from the team's data, then remove the individual team columns.
   This encourages the model to learn from the differences between teams rather than individual team stats, so it does not matter which team is labeled A or B.
    
-- Generate mirror matches to improve generalization.
+- Generate mirror matches to improve generalization (only train set).
   For most of the data, it does not matter whether a team is listed first or second (this is what I aimed to achieve).
+  
+## Data Dynamics and Time-Based Weighting
+
+League of Legends is a highly dynamic game with monthly patches and meta shifts. To ensure the model reflects the current state of the game, the training process incorporates the following temporal strategies:
+
+- Validation Set Selection: The validation set always consists of the most recent data (the last 2 months of matches). This ensures that hyperparameter tuning is optimized for the latest game version and team compositions.
+
+- Time-Based Sample Weighting: A linear scaling function is applied to the training data to prioritize newer matches.
+
+     - The oldest match in the training set is assigned a weight of 0.
+
+     - The most recent match in the training set is assigned a weight of 1.
+
+     - All other matches are assigned weights on a continuous scale between 0 and 1 based on their date.
+
+- Adaptive Training: By using these weights during the training phase, the model learns more from recent performance trends while still retaining long-term historical context.
+
+
 
 ## how to use it (Linux)
 
@@ -192,19 +440,9 @@ TO DO
 
 ## Validation accuracy
 
-The percentages represent the model’s predicted probabilities of each outcome, and the data is split into 50% training and 30% validation sets with a random seed of 42.
-
-- Decision Tree: x/y z%
-- Random Forest: x/y z%
-- XGBoost: x/y z%
-- Logistic Regression: x/y z%
-
-## Testing accuracy
-
-The validation and test sets are combined into a single.
-Test set representing 20% of the total dataset.
-
-- Decision Tree: x/y z%
-- Random Forest: x/y z%
-- XGBoost: x/y z%
-- Logistic Regression: x/y z%
+The percentages represent the accuracy of each model. The model with the highest accuracy is selected as the final predictor.
+- Decision Tree: 69.23%
+- AdaBoost: 70.85%
+- Random Forest: 72.46%
+- XGBoost: 70.04%
+- Logistic Regression: 71.25%
