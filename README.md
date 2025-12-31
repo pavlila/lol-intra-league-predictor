@@ -437,7 +437,7 @@ League of Legends is a highly dynamic game with monthly patches and meta shifts.
 
 - Clone the repository
   
-          git clone
+          git clone https://github.com/pavlila/lol-intra-league-predictor.git
 
           cd lol-intra-league-predictor
 
