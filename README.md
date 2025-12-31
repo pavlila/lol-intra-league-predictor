@@ -458,3 +458,8 @@ The percentages represent the accuracy of each model. The model with the highest
 - Random Forest: 72.46%
 - XGBoost: 70.04%
 - Logistic Regression: 71.25%
+
+
+## Testing accuracy
+
+Evaluation Challenges: Achieving an objective accuracy metric is challenging in the context of League of Legends. Given the high variance between patches and player behavior, a realistic evaluation requires a long-term observation period (minimum 2 months) in a live environment to account for meta shifts and ensure the model's robustness.
