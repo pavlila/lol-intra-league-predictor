@@ -51,7 +51,8 @@ class LoLNewDataFeatureEngineer:
         Returns:
             pd.DataFrame: Features ready for model prediction.
         """
-        df["date"] = pd.to_datetime(df["date"])
+        if "date" in df.columns:
+            df["date"] = pd.to_datetime(df["date"])
 
         meta_cols = ["teamA", "teamB", "league"]
 
