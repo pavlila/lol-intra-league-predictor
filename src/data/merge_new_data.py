@@ -41,7 +41,7 @@ class LoLNewDataMerger:
             "winrate%",
         ]
 
-    def getStats(self, team, league, date, teamsStats):
+    def get_stats(self, team, league, date, teams_stats):
         """
         Retrieves historical statistics for a team before a specific date.
         If current season data is insufficient, it blends it with the last
@@ -56,38 +56,38 @@ class LoLNewDataMerger:
         Returns:
             pd.Series: Weighted team statistics or an empty Series if no data exists.
         """
-        teamDataPast = teamsStats[
-            (teamsStats["Team"] == team)
-            & (teamsStats["league"] == league)
-            & (teamsStats["date"] < date)
+        team_data_past = teams_stats[
+            (teams_stats["Team"] == team)
+            & (teams_stats["league"] == league)
+            & (teams_stats["date"] < date)
         ].sort_values("date", ascending=False)
 
-        if teamDataPast.empty:
+        if team_data_past.empty:
             return pd.Series(dtype=float)
 
-        teamLastData = teamDataPast.iloc[0]
+        team_last_data = team_data_past.iloc[0]
 
-        if teamLastData.GP > 5:
-            return teamLastData.drop(labels=["date", "Team", "league"], errors="ignore")
+        if team_last_data.GP > 5:
+            return team_last_data.drop(labels=["date", "Team", "league"], errors="ignore")
 
-        stable_past_data = teamDataPast[teamDataPast["GP"] > 5]
+        stable_past_data = team_data_past[team_data_past["GP"] > 5]
 
         if stable_past_data.empty:
             return pd.Series(dtype=float)
 
-        teamLastStable = stable_past_data.iloc[0]
+        team_last_stable = stable_past_data.iloc[0]
 
-        gp_stable = min(teamLastStable.GP, 5)
-        gp_curr = teamLastData.GP
+        gp_stable = min(team_last_stable.GP, 5)
+        gp_curr = team_last_data.GP
         gp_total = gp_stable + gp_curr
 
         combined_data = pd.Series(dtype=float)
         combined_data["GP"] = gp_total
 
         for col in self.numeric_cols:
-            if col in teamLastData and col in teamLastStable:
+            if col in team_last_data and col in team_last_stable:
                 combined_data[col] = (
-                    (teamLastData[col] * gp_curr) + (teamLastStable[col] * gp_stable)
+                    (team_last_data[col] * gp_curr) + (team_last_stable[col] * gp_stable)
                 ) / gp_total
 
         return combined_data

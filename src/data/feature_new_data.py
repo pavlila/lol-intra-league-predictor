@@ -13,7 +13,7 @@ class LoLNewDataFeatureEngineer:
         """
         pass
 
-    def makeDiff(self, df):
+    def make_diff(self, df):
         """
         Calculates the differences and ratios between Team A and Team B stats.
         Removes the original columns to keep only the comparative features.
@@ -40,7 +40,7 @@ class LoLNewDataFeatureEngineer:
         df = df.drop(columns=drop_cols)
         return df
 
-    def makeNewFeature(self, df):
+    def make_new_feature(self, df):
         """
         Processes new matches into a format compatible with the trained model.
         Removes metadata and applies the differential transformation.
@@ -56,6 +56,6 @@ class LoLNewDataFeatureEngineer:
 
         meta_cols = ["teamA", "teamB", "league"]
 
-        df = self.makeDiff(df.drop(columns=meta_cols, errors="ignore"))
+        df = self.make_diff(df.drop(columns=meta_cols, errors="ignore"))
 
         return df
