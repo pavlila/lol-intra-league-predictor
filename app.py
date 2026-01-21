@@ -1,6 +1,7 @@
 import streamlit as st
 from pathlib import Path
 import pandas as pd
+from thefuzz import process, fuzz
 
 from src.utils.process_data import LolDataProcessor
 from src.utils.process_new_data import LoLDataNewProcessor
@@ -22,6 +23,69 @@ class LoLPredictorApp:
         self.processor_new = LoLDataNewProcessor()
         self.predictor = LoLPredictor()
 
+        BASE_DIR = Path(__file__).resolve().parent
+        self.teams_name_path = BASE_DIR / "data" / "merged" / "data.csv"
+        
+        self.team_league_map = {}
+        self.valid_teams = self._load_team_and_league_list()
+
+    def _load_team_and_league_list(self):
+        """
+        Loads the list of valid team names and leagues from the dataset.
+        """
+        df = pd.read_csv(self.teams_name_path)
+        for _, row in df.iterrows():
+            self.team_league_map[row["teamA"]] = row["league"]
+            self.team_league_map[row["teamB"]] = row["league"]
+        return list(self.team_league_map.keys())
+    
+    def _get_best_match(self, user_input):
+        """
+        Uses fuzzy matching to find the closest valid team name to the user input.
+        """
+        if not user_input or not self.valid_teams:
+            return None, 0
+        best_match, score = process.extractOne(user_input, self.valid_teams, scorer=fuzz.ratio)
+        return best_match, score
+    
+    def _process_ui_logic(self, team_a_input, team_b_input, league, date):
+        """
+        Processes user inputs and triggers prediction logic.
+        """
+        if not team_a_input or not team_b_input:
+            st.error("Please enter both team names.")
+            return
+        
+        team_a, score_a = self._get_best_match(team_a_input)
+        team_b, score_b = self._get_best_match(team_b_input)
+
+        threshold = 70
+        if score_a < threshold or score_b < threshold:
+            st.error("One or both team names are not recognized. Please check your input.")
+
+            col_err1, col_err2 = st.columns(2)
+            with col_err1:
+                st.info(f"Best match for A: **{team_a}** ({score_a}%)")
+            with col_err2:
+                st.info(f"Best match for B: **{team_b}** ({score_b}%)")
+            return
+
+        league_a = self.team_league_map.get(team_a)
+        league_b = self.team_league_map.get(team_b)
+
+        if league_a != league or league_b != league:
+            st.error(f"One of the teams does not belong to the selected league (**{league}**).")
+            if league_a != league:
+                st.warning(f"**{team_a}** plays in **{league_a}**")
+            if league_b != league:
+                st.warning(f"**{team_b}** plays in **{league_b}**")
+            return
+
+        if team_a != team_a_input or team_b != team_b_input:
+            st.info(f"Interpreting input as: **{team_a}** vs **{team_b}**")
+
+        self._handle_prediction(team_a, team_b, league, date)
+
     def run(self):
         """
         Renders the Streamlit UI and handles user interactions.
@@ -38,18 +102,15 @@ class LoLPredictorApp:
 
         col1, col2 = st.columns(2)
         with col1:
-            team_a = st.text_input("Team A Name", placeholder="e.g. T1")
+            team_a_input = st.text_input("Team A Name", placeholder="e.g. T1")
         with col2:
-            team_b = st.text_input("Team B Name", placeholder="e.g. Gen.G")
+            team_b_input = st.text_input("Team B Name", placeholder="e.g. Gen.G")
 
         league = st.selectbox("Select League", ["LEC", "LCK", "LPL", "LTA N", "LTA S", "LCP"])
         date = st.date_input("Match Date")
 
         if st.button("Predict Winner", use_container_width=True):
-            if team_a and team_b:
-                self._handle_prediction(team_a, team_b, league, date)
-            else:
-                st.error("Please enter both team names.")
+            self._process_ui_logic(team_a_input, team_b_input, league, date)
 
         st.markdown("""
         ---
