@@ -111,8 +111,8 @@ class LoLNewDataMerger:
             teamA, teamB = row["teamA"], row["teamB"]
             date, league = row["date"], row["league"]
 
-            statsA = self.getStats(teamA, league, date, teams)
-            statsB = self.getStats(teamB, league, date, teams)
+            statsA = self.get_stats(teamA, league, date, teams)
+            statsB = self.get_stats(teamB, league, date, teams)
 
             if statsA.empty:
                 missing_A += 1

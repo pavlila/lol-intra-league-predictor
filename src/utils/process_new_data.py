@@ -41,6 +41,6 @@ class LoLDataNewProcessor:
         teams["date"] = pd.to_datetime(teams["date"])
 
         merged_df = self.merger.merge_new_teams_and_matches(cleaned_df, teams)
-        featured_df = self.feature_engineer.makeNewFeature(merged_df)
+        featured_df = self.feature_engineer.make_new_feature(merged_df)
         featured_df = featured_df.drop(columns=["date"], errors="ignore")
         return featured_df
